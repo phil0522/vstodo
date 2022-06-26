@@ -1,0 +1,55 @@
+{
+	"name": "cxzr-vstodo",
+	"displayName": "XZR TODO",
+	"description": "Manipulate todos in text file",
+	"version": "0.0.1",
+	"publisher": "vstodo",
+	"repository": "https://github.com/Microsoft/vscode-extension-samples/helloworld-sample",
+	"engines": {
+		"vscode": "^1.32.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onCommand:vstodo.update-todo-list"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"commands": [
+      {
+        "command": "vstodo.update-todo-list",
+        "title": "VSTODO: update TODO list"
+      }
+		],
+		"keybindings": [
+			{
+				"command": "vstodo.update-todo-list",
+				"key": "alt+f"
+			}
+		]
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"lint": "eslint . --ext .ts,.tsx",
+		"watch": "tsc -watch -p ./",
+		"pretest": "npm run compile",
+    "install-extension": "npx vsce package && code --install-extension ./cxzr-vstodo-$npm_package_version.vsix",
+		"test": "node ./out/test/runTest.js"
+	},
+	"devDependencies": {
+		"@types/glob": "^7.1.1",
+		"@types/mocha": "^5.2.6",
+		"@types/node": "^16.11.7",
+		"@types/vscode": "^1.32.0",
+		"@typescript-eslint/eslint-plugin": "^5.19.0",
+		"@typescript-eslint/parser": "^5.19.0",
+		"@vscode/test-electron": "^1.6.1",
+		"eslint": "^8.13.0",
+		"glob": "^7.1.4",
+		"mocha": "^6.1.4",
+		"source-map-support": "^0.5.12",
+		"typescript": "^4.7.2"
+	}
+}
