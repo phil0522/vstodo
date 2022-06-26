@@ -34,6 +34,7 @@ class TodoNode {
     node.selfPriority = otherNode.selfPriority;
     node.title = otherNode.title;
     node.isDone = otherNode.isDone;
+    parent.Sort();
     return node;
   }
 
@@ -41,7 +42,6 @@ class TodoNode {
     let node = new TodoNode(parent);
     node.title = title.trim().substring(1);
     parent.children.push(node);
-    parent.Sort();
 
     if (node.title.indexOf("[x]") >= 0) {
       node.title = node.title.replace("[x]", "");
@@ -65,6 +65,9 @@ class TodoNode {
     } else {
       node.selfPriority = 3;
     }
+    node.title = node.title.trimStart();
+
+    parent.Sort();
     return node;
   }
 
@@ -77,7 +80,7 @@ class TodoNode {
     if (this.selfPriority >= 3) {
       priority = "";
     }
-    return `${"  ".repeat(this.level)}- ${completion}${priority}${this.title}`;
+    return `${"  ".repeat(this.level)}- ${completion}${priority} ${this.title}`;
   }
 
   public asLines() {
@@ -168,8 +171,27 @@ class TodoNode {
     return this.parent;
   }
 
+  public IsRoot(): boolean {
+    return this.parent == null;
+  }
+
   public IsDone(): boolean {
     return this.isDone;
+  }
+
+  public RemoveCompletedLeafNode(): TodoNode[] {
+    let pending: TodoNode[] = [];
+    let done: TodoNode[] = [];
+
+    for (let child of this.children) {
+      if (child.children.length === 0 && child.isDone) {
+        done.push(child);
+      } else {
+        pending.push(child);
+      }
+    }
+    this.children = pending;
+    return done;
   }
 }
 
@@ -191,11 +213,10 @@ class TodoSection implements Section {
 
   consume(line: string) {
     let spaces = this.numOfLeadingSpaces(line);
-    if (spaces <= 2 * this.lastParentNode.GetLevel()) {
+    while (spaces <= 2 * this.lastParentNode.GetLevel()) {
       this.lastParentNode = this.lastParentNode.GetParent();
     }
     this.lastParentNode = TodoNode.parseFromLine(this.lastParentNode, line);
-    console.log("construct node: " + this.lastParentNode.toString());
   }
 
   private numOfLeadingSpaces(line: string) {
@@ -226,7 +247,13 @@ class TodoSection implements Section {
       }
       return false;
     }
+
     dfs(this.root);
+    let doneTopCompleteItems = this.root.RemoveCompletedLeafNode();
+    for (let node of doneTopCompleteItems) {
+      r.push(node);
+    }
+
     return r;
   }
 
@@ -235,51 +262,77 @@ class TodoSection implements Section {
   }
 }
 
+const ZONE_NORMAL = 0;
+const ZONE_COMPLETED_TASK = 1;
+
+function isTodoLine(line: string) {
+  let trimmed = line.trimStart();
+  if (trimmed.startsWith("- [x]") || trimmed.startsWith("- [ ]")) {
+    return true;
+  }
+  return false;
+}
 class TodoDocument {
   private sections: Section[] = [];
   private lastSection: Section;
+  private completedTodoSection: TodoSection = new TodoSection();
   public constructor(private text: string) {
     this.lastSection = new TextSection();
     this.sections.push(this.lastSection);
     let lines = text.split("\n");
+
+    let zone = ZONE_NORMAL;
     for (let line of lines) {
-      this.getOrCreateSection(line).consume(line);
+      if (line.startsWith("================ Completed Tasks =============")) {
+        zone = ZONE_COMPLETED_TASK;
+      }
+
+      if (zone == ZONE_NORMAL) {
+        this.getOrCreateSection(line).consume(line);
+      } else if (zone == ZONE_COMPLETED_TASK) {
+        if (isTodoLine(line)) {
+          this.completedTodoSection.consume(line);
+        }
+      }
     }
   }
 
   public format(): string[] {
     let r: string[] = [];
-    let archivedSection = new TodoSection();
 
     for (let section of this.sections) {
       if (section instanceof TodoSection) {
         let items = section.RemoveCompleteItems();
         for (let item of items) {
-          archivedSection.AddTodoNode(item);
+          this.completedTodoSection.AddTodoNode(item);
         }
       }
       r.push(...section.asLines());
     }
-    r.push(...archivedSection.asLines());
+
+    let completedLines = this.completedTodoSection.asLines();
+
+    if (completedLines.length > 0) {
+      r.push("================ Completed Tasks =============");
+    }
+
+    r.push(...this.completedTodoSection.asLines());
 
     return r;
   }
 
   public getOrCreateSection(line: string): Section {
     let trimmed = line.trimStart();
-    let isTodoLine = false;
-    if (trimmed.startsWith("- [x]") || trimmed.startsWith("- [ ]")) {
-      isTodoLine = true;
-    }
+    let isTodo = isTodoLine(line);
 
-    if (isTodoLine && this.lastSection instanceof TodoSection) {
+    if (isTodo && this.lastSection instanceof TodoSection) {
       return this.lastSection;
     }
-    if (!isTodoLine && this.lastSection instanceof TextSection) {
+    if (!isTodo && this.lastSection instanceof TextSection) {
       return this.lastSection;
     }
 
-    if (isTodoLine) {
+    if (isTodo) {
       this.lastSection = new TodoSection();
     } else {
       this.lastSection = new TextSection();
@@ -301,7 +354,6 @@ async function UpdateTodoList(
   let text = editor.document.getText();
 
   let anchor = editor.selection.anchor;
-  console.log(`text=${text}`);
 
   const fullrange = new vscode.Range(0, 0, 100000, 100000);
   edit.replace(fullrange, reFormatText(text));

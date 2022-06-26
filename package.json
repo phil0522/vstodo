@@ -17,10 +17,10 @@
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
-      {
-        "command": "vstodo.update-todo-list",
-        "title": "VSTODO: update TODO list"
-      }
+			{
+				"command": "vstodo.update-todo-list",
+				"title": "VSTODO: update TODO list"
+			}
 		],
 		"keybindings": [
 			{
@@ -30,12 +30,16 @@
 		]
 	},
 	"scripts": {
-		"vscode:prepublish": "npm run compile",
+		"vscode:prepublish": "npm run esbuild-base -- --minify",
+    "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/main.js --external:vscode --format=cjs --platform=node",
+    "esbuild": "npm run esbuild-base -- --sourcemap",
+    "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
+    "test-compile": "tsc -p ./",
 		"compile": "tsc -p ./",
 		"lint": "eslint . --ext .ts,.tsx",
 		"watch": "tsc -watch -p ./",
 		"pretest": "npm run compile",
-    "install-extension": "npx vsce package && code --install-extension ./cxzr-vstodo-$npm_package_version.vsix",
+		"install-extension": "npx vsce package && code --install-extension ./cxzr-vstodo-$npm_package_version.vsix",
 		"test": "node ./out/test/runTest.js"
 	},
 	"devDependencies": {
@@ -46,6 +50,7 @@
 		"@typescript-eslint/eslint-plugin": "^5.19.0",
 		"@typescript-eslint/parser": "^5.19.0",
 		"@vscode/test-electron": "^1.6.1",
+		"esbuild": "^0.14.47",
 		"eslint": "^8.13.0",
 		"glob": "^7.1.4",
 		"mocha": "^6.1.4",
