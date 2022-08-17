@@ -76,7 +76,7 @@ class TodoNode {
       return "<root>";
     }
     let completion = this.isDone ? "[x]" : "[ ]";
-    let priority = `[P${this.selfPriority}]`;
+    let priority = ` [P${this.selfPriority}]`;
     if (this.selfPriority >= 3) {
       priority = "";
     }
@@ -113,8 +113,8 @@ class TodoNode {
       if (!a.isDone && b.isDone) {
         return -1;
       }
-      if (a.GetPriority() != b.GetPriority()) {
-        return a.GetPriority() - b.GetPriority();
+      if (a.selfPriority != b.selfPriority) {
+        return a.selfPriority - b.selfPriority;
       }
       return a.title < b.title ? -1 : 1;
     });

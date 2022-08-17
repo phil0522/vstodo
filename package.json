@@ -39,7 +39,7 @@
 		"lint": "eslint . --ext .ts,.tsx",
 		"watch": "tsc -watch -p ./",
 		"pretest": "npm run compile",
-		"install-extension": "npx vsce package && code --install-extension ./cxzr-vstodo-$npm_package_version.vsix",
+		"install-extension": "npm run esbuild-base -- --minify && npx vsce package && code --install-extension ./cxzr-vstodo-$npm_package_version.vsix",
 		"test": "node ./out/test/runTest.js"
 	},
 	"devDependencies": {
