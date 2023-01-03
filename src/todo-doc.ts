@@ -72,6 +72,8 @@ class TodoNode {
     }
     node.title = node.title.trimStart();
 
+    console.log("node.title: %s, priority: %d", node.title, node.selfPriority);
+
     parent.Sort();
     return node;
   }
@@ -129,7 +131,7 @@ class TodoNode {
       if (a.selfPriority != b.selfPriority) {
         return a.selfPriority - b.selfPriority;
       }
-      return a.title < b.title ? -1 : 1;
+      return 0; // Keep the original sequence
     });
   }
 
@@ -229,6 +231,7 @@ class TodoSection implements Section {
     while (spaces <= 2 * this.lastParentNode.GetLevel()) {
       this.lastParentNode = this.lastParentNode.GetParent();
     }
+    // console.log("line: %s, parent: ", line, this.lastParentNode);
     this.lastParentNode = TodoNode.parseFromLine(this.lastParentNode, line);
   }
 
@@ -280,11 +283,14 @@ const ZONE_COMPLETED_TASK = 1;
 
 function isTodoLine(line: string) {
   let trimmed = line.trimStart();
-  if (trimmed.startsWith("- [x]") || trimmed.startsWith("- [ ]")) {
+  // if (trimmed.startsWith("- [x]") || trimmed.startsWith("- [ ]")) {
+  //   return true;
+  // }
+  // if (trimmed.startsWith("- [P")) {
+  //   return true
+  // }
+  if (trimmed.startsWith("-")) {
     return true;
-  }
-  if (trimmed.startsWith("- [P")) {
-    return true
   }
   return false;
 }
