@@ -14,6 +14,7 @@ class TodoNode {
   private children: TodoNode[] = [];
   private title: string = "";
   private level: number; // number of indent level, root has level of -1
+  private hasCheckBox: boolean = true;
 
   private constructor(private parent: TodoNode | null) {
     if (this.parent == null) {
@@ -51,6 +52,7 @@ class TodoNode {
       node.isDone = false;
     } else {
       node.isDone = false;
+      node.hasCheckBox = false;
     }
 
     if (node.title.indexOf("[P0]") >= 0) {
@@ -62,8 +64,11 @@ class TodoNode {
     } else if (node.title.indexOf("[P2]") >= 0) {
       node.title = node.title.replace("[P2]", "");
       node.selfPriority = 2;
-    } else {
+    } else if (node.title.indexOf("[P3]") >= 0) {
+      node.title = node.title.replace("[P3]", "");
       node.selfPriority = 3;
+    } else {
+      node.selfPriority = 4;
     }
     node.title = node.title.trimStart();
 
@@ -75,11 +80,19 @@ class TodoNode {
     if (this.parent == null) {
       return "<root>";
     }
-    let completion = this.isDone ? "[x]" : "[ ]";
+    let completion = "";
+    if (this.hasCheckBox) {
+      completion = this.isDone ? "[x]" : "[ ]";
+    }
+
     let priority = ` [P${this.selfPriority}]`;
-    if (this.selfPriority >= 3) {
+    if (completion === "") {
+      priority=priority.trim();
+    }
+    if (this.selfPriority >= 4) {
       priority = "";
     }
+    // console.log("priority=[%s], <%s>", completion, priority);
     return `${"  ".repeat(this.level)}- ${completion}${priority} ${this.title}`;
   }
 
@@ -269,6 +282,9 @@ function isTodoLine(line: string) {
   let trimmed = line.trimStart();
   if (trimmed.startsWith("- [x]") || trimmed.startsWith("- [ ]")) {
     return true;
+  }
+  if (trimmed.startsWith("- [P")) {
+    return true
   }
   return false;
 }
