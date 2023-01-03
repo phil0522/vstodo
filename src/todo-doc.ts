@@ -84,18 +84,15 @@ class TodoNode {
     }
     let completion = "";
     if (this.hasCheckBox) {
-      completion = this.isDone ? "[x]" : "[ ]";
+      completion = this.isDone ? "[x] " : "[ ] ";
     }
 
-    let priority = ` [P${this.selfPriority}]`;
-    if (completion === "") {
-      priority=priority.trim();
-    }
+    let priority = `[P${this.selfPriority}] `;
     if (this.selfPriority >= 4) {
       priority = "";
     }
     // console.log("priority=[%s], <%s>", completion, priority);
-    return `${"  ".repeat(this.level)}- ${completion}${priority} ${this.title}`;
+    return `${"  ".repeat(this.level)}- ${completion}${priority}${this.title}`;
   }
 
   public asLines() {
