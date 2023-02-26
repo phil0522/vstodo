@@ -55,17 +55,17 @@ class TodoNode {
       node.hasCheckBox = false;
     }
 
-    if (node.title.indexOf("[P0]") >= 0) {
-      node.title = node.title.replace("[P0]", "");
+    if (node.title.indexOf("<P0>") >= 0) {
+      node.title = node.title.replace("<P0>", "");
       node.selfPriority = 0;
-    } else if (node.title.indexOf("[P1]") >= 0) {
-      node.title = node.title.replace("[P1]", "");
+    } else if (node.title.indexOf("<P1>") >= 0) {
+      node.title = node.title.replace("<P1>", "");
       node.selfPriority = 1;
-    } else if (node.title.indexOf("[P2]") >= 0) {
-      node.title = node.title.replace("[P2]", "");
+    } else if (node.title.indexOf("<P2>") >= 0) {
+      node.title = node.title.replace("<P2>", "");
       node.selfPriority = 2;
-    } else if (node.title.indexOf("[P3]") >= 0) {
-      node.title = node.title.replace("[P3]", "");
+    } else if (node.title.indexOf("<P3>") >= 0) {
+      node.title = node.title.replace("<P3>", "");
       node.selfPriority = 3;
     } else {
       node.selfPriority = 4;
@@ -87,7 +87,7 @@ class TodoNode {
       completion = this.isDone ? "[x] " : "[ ] ";
     }
 
-    let priority = `[P${this.selfPriority}] `;
+    let priority = `<P${this.selfPriority}> `;
     if (this.selfPriority >= 4) {
       priority = "";
     }
