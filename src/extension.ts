@@ -2,7 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
 
-import { reFormatText } from "./todo-doc";
+import { reFormatTextTodo } from "./todo-doc";
 
 async function UpdateTodoList(
   editor: vscode.TextEditor,
@@ -31,4 +31,9 @@ export function activate(context: vscode.ExtensionContext) {
       UpdateTodoList
     )
   );
+}
+
+export function reFormatText(textInput: string): string {
+  let doc = reFormatTextTodo(textInput);
+  return doc;
 }

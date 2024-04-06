@@ -361,10 +361,11 @@ class TodoDocument {
   }
 }
 
-export function reFormatText(textInput: string): string {
+export function reFormatTextTodo(textInput: string): string {
   let doc = new TodoDocument(textInput);
   return doc.format().join("\n");
 }
+
 
 async function UpdateTodoList(
   editor: vscode.TextEditor,
@@ -375,6 +376,6 @@ async function UpdateTodoList(
   let anchor = editor.selection.anchor;
 
   const fullrange = new vscode.Range(0, 0, 100000, 100000);
-  edit.replace(fullrange, reFormatText(text));
+  edit.replace(fullrange, reFormatTextTodo(text));
   editor.selection.anchor = anchor;
 }
